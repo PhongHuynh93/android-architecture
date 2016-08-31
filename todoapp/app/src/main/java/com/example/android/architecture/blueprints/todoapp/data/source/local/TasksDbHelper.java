@@ -21,19 +21,22 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * make sqlopenhelper and declare the column and table name
+ * make sqlopenhelper class
  */
 public class TasksDbHelper extends SQLiteOpenHelper {
+//    db name and version
     public static final int DATABASE_VERSION = 1;
 
     public static final String DATABASE_NAME = "Tasks.db";
 
+//    type value
     private static final String TEXT_TYPE = " TEXT";
 
     private static final String BOOLEAN_TYPE = " INTEGER";
 
     private static final String COMMA_SEP = ",";
 
+//    create table
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + TasksPersistenceContract.TaskEntry.TABLE_NAME + " (" +
                     TasksPersistenceContract.TaskEntry._ID + TEXT_TYPE + " PRIMARY KEY," +
@@ -47,6 +50,10 @@ public class TasksDbHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    /**
+     * implement onCreate + onUpgrade + onDowngrade
+     * @param db
+     */
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_ENTRIES);
     }

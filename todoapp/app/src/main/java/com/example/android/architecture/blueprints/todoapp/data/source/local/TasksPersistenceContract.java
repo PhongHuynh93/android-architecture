@@ -28,6 +28,8 @@ public final class TasksPersistenceContract {
     public TasksPersistenceContract() {}
 
     /* Inner class that defines the table contents */
+    // declare table name and column name of database,
+    // remember to extends basecolumns
     public static abstract class TaskEntry implements BaseColumns {
         public static final String TABLE_NAME = "task";
         public static final String COLUMN_NAME_ENTRY_ID = "entryid";
