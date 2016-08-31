@@ -20,6 +20,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * make sqlopenhelper and declare the column and table name
+ */
 public class TasksDbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
 
@@ -56,3 +59,5 @@ public class TasksDbHelper extends SQLiteOpenHelper {
         // Not required as at version 1
     }
 }
+
+// end make sqlopenhelper and declare the column and table name
