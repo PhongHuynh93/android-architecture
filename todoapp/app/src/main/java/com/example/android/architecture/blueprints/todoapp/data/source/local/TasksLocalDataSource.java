@@ -50,18 +50,20 @@ public class TasksLocalDataSource implements TasksDataSource {
     // Prevent direct instantiation.
     private TasksLocalDataSource(@NonNull Context context) {
         checkNotNull(context);
+
+        // todo get the data from db
         TasksDbHelper dbHelper = new TasksDbHelper(context);
         SqlBrite sqlBrite = SqlBrite.create();
         mDatabaseHelper = sqlBrite.wrapDatabaseHelper(dbHelper, Schedulers.io());
+
+        // TODO: 9/1/16 the function to translate a row in cursor into the object
         mTaskMapperFunction = new Func1<Cursor, Task>() {
             @Override
             public Task call(Cursor c) {
                 String itemId = c.getString(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_ENTRY_ID));
                 String title = c.getString(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_TITLE));
-                String description =
-                        c.getString(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_DESCRIPTION));
-                boolean completed =
-                        c.getInt(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_COMPLETED)) == 1;
+                String description = c.getString(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_DESCRIPTION));
+                boolean completed = c.getInt(c.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_COMPLETED)) == 1;
                 return new Task(title, description, itemId, completed);
             }
         };
@@ -74,19 +76,41 @@ public class TasksLocalDataSource implements TasksDataSource {
         return INSTANCE;
     }
 
+    /**
+     * todo get all tasks
+     * @return
+     */
     @Override
     public Observable<List<Task>> getTasks() {
+        /**
+         * declare the column to get the datas
+         */
         String[] projection = {
                 TaskEntry.COLUMN_NAME_ENTRY_ID,
                 TaskEntry.COLUMN_NAME_TITLE,
                 TaskEntry.COLUMN_NAME_DESCRIPTION,
                 TaskEntry.COLUMN_NAME_COMPLETED
         };
+
+        /**
+         * todo - make a query to select datas from db
+         *
+         * TextUtils.join(): add , to the each column
+         */
         String sql = String.format("SELECT %s FROM %s", TextUtils.join(",", projection), TaskEntry.TABLE_NAME);
+        /**
+         * todo createQuery: get cursor from db
+         * todo mapToList: translate cursor to list of tasks
+         */
         return mDatabaseHelper.createQuery(TaskEntry.TABLE_NAME, sql)
                 .mapToList(mTaskMapperFunction);
     }
 
+    /**
+     * todo get one task
+     * @param taskId
+     * @return
+     */
     @Override
     public Observable<Task> getTask(@NonNull String taskId) {
         String[] projection = {
@@ -95,12 +119,27 @@ public class TasksLocalDataSource implements TasksDataSource {
                 TaskEntry.COLUMN_NAME_DESCRIPTION,
                 TaskEntry.COLUMN_NAME_COMPLETED
         };
+
+        /**
+         * The LIKE operator is used in a WHERE clause to search for a specified pattern in a column.
+         * @see <a href="http://www.w3schools.com/sql/sql_like.asp"></a>
+         */
         String sql = String.format("SELECT %s FROM %s WHERE %s LIKE ?",
                 TextUtils.join(",", projection), TaskEntry.TABLE_NAME, TaskEntry.COLUMN_NAME_ENTRY_ID);
+
+        /**
+         * mapToOneOrDefault: Creates an observable operator which transforms a query returning a single row to T using mapper.
+         * translate one row in cursor into one task
+         * return one task
+         */
         return mDatabaseHelper.createQuery(TaskEntry.TABLE_NAME, sql, taskId)
                 .mapToOneOrDefault(mTaskMapperFunction, null);
     }
 
+    /**
+     * todo save to db
+     * @param task
+     */
     @Override
     public void saveTask(@NonNull Task task) {
         checkNotNull(task);
@@ -117,6 +156,10 @@ public class TasksLocalDataSource implements TasksDataSource {
         completeTask(task.getId());
     }
 
+    /**
+     * todo update the db
+     * @param taskId
+     */
     @Override
     public void completeTask(@NonNull String taskId) {
         ContentValues values = new ContentValues();
@@ -132,6 +175,10 @@ public class TasksLocalDataSource implements TasksDataSource {
         activateTask(task.getId());
     }
 
+    /**
+     * todo upate the db
+     * @param taskId
+     */
     @Override
     public void activateTask(@NonNull String taskId) {
         ContentValues values = new ContentValues();
@@ -160,6 +207,10 @@ public class TasksLocalDataSource implements TasksDataSource {
         mDatabaseHelper.delete(TaskEntry.TABLE_NAME, null);
     }
 
+    /**
+     * todo delete from db
+     * @param taskId
+     */
     @Override
     public void deleteTask(@NonNull String taskId) {
         String selection = TaskEntry.COLUMN_NAME_ENTRY_ID + " LIKE ?";
